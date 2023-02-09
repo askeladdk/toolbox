@@ -4,6 +4,7 @@ Package toolbox provides reusable data structures and algorithms.
 
 ## Implementations
 
-| Package | Description
-|---------|------------
-| queue   | Generic queue.
+| Package  | Description
+|----------|------------
+| distinct | Compact distinct set (union find).
+| queue    | Generic queue.
