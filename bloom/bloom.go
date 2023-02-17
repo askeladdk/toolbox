@@ -2,7 +2,8 @@
 // A bloom filter is a space-efficient probabilistic data structure
 // that quickly tests set membership given a certain probability
 // of false positives but no false negatives.
-// This implementation is optimized for modern L1 caches.
+// This implementation is optimized for modern L1 caches
+// and is safe to use concurrently.
 //
 // A bloom filter is characterized by four interrelated parameters:
 //
@@ -23,6 +24,7 @@ package bloom
 import (
 	"math"
 	"math/bits"
+	"sync/atomic"
 )
 
 // References:
@@ -62,10 +64,10 @@ func (f Filter) Add(x uint64) {
 	h0, h1 := splithash(x)
 	s0, s1, s2, s3 := sectors(h0, h1, uint32(len(f)))
 	z0, z1, z2, z3 := bitmasks(h0, h1)
-	f[s0] |= z0
-	f[s1] |= z1
-	f[s2] |= z2
-	f[s3] |= z3
+	f.atomicSetBits(s0, z0)
+	f.atomicSetBits(s1, z1)
+	f.atomicSetBits(s2, z2)
+	f.atomicSetBits(s3, z3)
 }
 
 // Test reports whether h may be in the filter.
@@ -76,28 +78,24 @@ func (f Filter) Test(x uint64) bool {
 	h0, h1 := splithash(x)
 	s0, s1, s2, s3 := sectors(h0, h1, uint32(len(f)))
 	z0, z1, z2, z3 := bitmasks(h0, h1)
-	m0 := f[s0]
-	m1 := f[s1]
-	m2 := f[s2]
-	m3 := f[s3]
+	m0 := atomic.LoadUint64(&f[s0])
+	m1 := atomic.LoadUint64(&f[s1])
+	m2 := atomic.LoadUint64(&f[s2])
+	m3 := atomic.LoadUint64(&f[s3])
 	return m0&z0 == z0 && m1&z1 == z1 && m2&z2 == z2 && m3&z3 == z3
 }
 
-// TestAndAdd is equivalent to calling Test(x) followed by Add(x)
+// TestAndAdd is shorthand for Test(x) followed by Add(x)
 // but is more efficient than calling them separately.
 // The complexity is O(1).
 func (f Filter) TestAndAdd(x uint64) bool {
 	h0, h1 := splithash(x)
 	s0, s1, s2, s3 := sectors(h0, h1, uint32(len(f)))
 	z0, z1, z2, z3 := bitmasks(h0, h1)
-	m0 := f[s0]
-	m1 := f[s1]
-	m2 := f[s2]
-	m3 := f[s3]
-	f[s0] = m0 | z0
-	f[s1] = m1 | z1
-	f[s2] = m2 | z2
-	f[s3] = m3 | z3
+	m0 := f.atomicSetBits(s0, z0)
+	m1 := f.atomicSetBits(s1, z1)
+	m2 := f.atomicSetBits(s2, z2)
+	m3 := f.atomicSetBits(s3, z3)
 	return m0&z0 == z0 && m1&z1 == z1 && m2&z2 == z2 && m3&z3 == z3
 }
 
@@ -111,7 +109,7 @@ func (f Filter) Bits() int {
 // but it is more efficient than testing for f.Len() == 0.
 func (f Filter) Empty() bool {
 	for i := range f {
-		if f[i] != 0 {
+		if atomic.LoadUint64(&f[i]) != 0 {
 			return false
 		}
 	}
@@ -126,7 +124,7 @@ func (f Filter) Equal(g Filter) bool {
 		return false
 	}
 	for i := range f {
-		if f[i] != g[i] {
+		if atomic.LoadUint64(&f[i]) != atomic.LoadUint64(&g[i]) {
 			return false
 		}
 	}
@@ -134,6 +132,8 @@ func (f Filter) Equal(g Filter) bool {
 }
 
 // Len estimates the number of elements in the filter.
+// Returns [math.MaxInt] if all bits in f are set to 1,
+// meaning that Test(x) is true for all x.
 // The complexity is O(n).
 func (f Filter) Len() int {
 	// https://en.wikipedia.org/wiki/Bloom_filter#Approximating_the_number_of_items_in_a_Bloom_filter
@@ -142,25 +142,30 @@ func (f Filter) Len() int {
 	var n float64
 	for i := 0; i < len(f); i += 8 {
 		var ones int
-		ones += bits.OnesCount64(f[i+0])
-		ones += bits.OnesCount64(f[i+1])
-		ones += bits.OnesCount64(f[i+2])
-		ones += bits.OnesCount64(f[i+3])
-		ones += bits.OnesCount64(f[i+4])
-		ones += bits.OnesCount64(f[i+5])
-		ones += bits.OnesCount64(f[i+6])
-		ones += bits.OnesCount64(f[i+7])
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+0]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+1]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+2]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+3]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+4]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+5]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+6]))
+		ones += bits.OnesCount64(atomic.LoadUint64(&f[i+7]))
 		if ones != 0 {
 			n += math.Log1p(-float64(ones) / blockbits)
 		}
 	}
+
+	if n == math.Inf(-1) {
+		return math.MaxInt
+	}
+
 	return int(-(blockbits / k) * n)
 }
 
 // Reset clears the filter.
 func (f Filter) Reset() {
 	for i := range f {
-		f[i] = 0
+		atomic.StoreUint64(&f[i], 0)
 	}
 }
 
@@ -172,7 +177,16 @@ func (f Filter) UnionWith(g Filter) {
 		panic("bloom: cannot union with filter of unequal size")
 	}
 	for i := range f {
-		f[i] |= g[i]
+		f.atomicSetBits(uint32(i), g[i])
+	}
+}
+
+func (f Filter) atomicSetBits(s uint32, z uint64) (old uint64) {
+	for {
+		old = atomic.LoadUint64(&f[s])
+		if old&z == z || atomic.CompareAndSwapUint64(&f[s], old, old|z) {
+			return
+		}
 	}
 }
 

@@ -2,6 +2,7 @@ package bloom
 
 import (
 	"strconv"
+	"sync"
 	"testing"
 
 	"github.com/askeladdk/toolbox/internal/require"
@@ -90,8 +91,38 @@ func TestUnionPanic(t *testing.T) {
 	require.True(t, panicked)
 }
 
+func TestParallelism(t *testing.T) {
+	n := 1000000
+
+	g := NewWithEstimate(n, 0.001)
+	for i := 1; i <= n; i++ {
+		g.Add(Int(i))
+	}
+
+	for _, c := range []int{2, 4, 8, 16, 32, 64} {
+		t.Run(strconv.Itoa(c), func(t *testing.T) {
+			f := NewWithEstimate(n, 0.001)
+			d := n / c
+			var wg sync.WaitGroup
+
+			for i := 1; i <= n; i += d {
+				wg.Add(1)
+				go func(i, j int) {
+					for ; i < j; i++ {
+						f.Add(Int(i))
+					}
+					wg.Done()
+				}(i, i+d)
+			}
+
+			wg.Wait()
+			require.True(t, f.Equal(g))
+		})
+	}
+}
+
 func BenchmarkBloomFilter(b *testing.B) {
-	for _, n := range []int{1000, 10000, 100000, 1000000, 10000000} {
+	for _, n := range []int{1000, 10000, 100000, 1000000} {
 		b.Run(strconv.Itoa(n), func(b *testing.B) {
 			f := NewWithEstimate(n, 0.01)
 			var fp int
@@ -101,7 +132,27 @@ func BenchmarkBloomFilter(b *testing.B) {
 				}
 			}
 			b.ReportMetric(float64(fp)/float64(n), "fpr")
-			b.ReportMetric(float64(f.Bits()), "m")
+		})
+	}
+}
+
+func BenchmarkParallelism(b *testing.B) {
+	for _, c := range []int{1, 2, 4, 8, 16, 32, 64} {
+		b.Run(strconv.Itoa(c), func(b *testing.B) {
+			n := 1000000
+			f := New(Estimate(n, 0.01))
+			d := n / c
+			var wg sync.WaitGroup
+			for i := 1; i <= n; i += d {
+				wg.Add(1)
+				go func(i, j int) {
+					for ; i < j; i++ {
+						f.Add(Int(i))
+					}
+					wg.Done()
+				}(i, i+d)
+			}
+			wg.Wait()
 		})
 	}
 }
