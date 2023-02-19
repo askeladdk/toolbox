@@ -134,5 +134,8 @@ func (q *Queue[T]) index(i int) int {
 }
 
 func (q *Queue[T]) wraparound(i int) int {
+	if i < 0 {
+		i = -i
+	}
 	return i % (2 * len(q.elem))
 }

@@ -142,3 +142,20 @@ func TestPeekEmptyPanic(t *testing.T) {
 
 	require.True(t, panicked)
 }
+
+func TestPushPopPush(t *testing.T) {
+	var q Queue[int]
+
+	for i := 0; i < 1000; i++ {
+		q.Push(i)
+		q.Pop()
+		q.Push(i)
+	}
+
+	require.Equal(t, 1000, q.Len())
+
+	for i := 500; i < 1000; i++ {
+		require.Equal(t, i, q.Pop())
+		require.Equal(t, i, q.Pop())
+	}
+}
