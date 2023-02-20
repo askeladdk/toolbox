@@ -1,4 +1,4 @@
-package bitset
+package densebits
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestDenseSetTestFlip(t *testing.T) {
-	a := NewDense(1024)
+	a := New(1024)
 
 	for i := 0; i < a.Len(); i++ {
 		a.SetBit(i, true)
@@ -28,13 +28,13 @@ func TestDenseSetTestFlip(t *testing.T) {
 	a.FlipBit(0)
 	require.Equal(t, 1, a.OnesCount())
 
-	require.True(t, !a.Equal(Dense{}))
+	require.True(t, !a.Equal(Set{}))
 }
 
 func TestDenseSetOps(t *testing.T) {
-	a := NewDense(128)
-	b := NewDense(128)
-	c := NewDense(128)
+	a := New(128)
+	b := New(128)
+	c := New(128)
 
 	a.Repeat(0x5555555555555555)
 	b.Repeat(0xaaaaaaaaaaaaaaaa)
@@ -57,31 +57,31 @@ func TestDenseSetOps(t *testing.T) {
 	require.True(t, c.Equal(b))
 	require.True(t, !c.Equal(a))
 
-	d := NewDense(256)
+	d := New(256)
 	d.Xor(c, d)
 	require.Equal(t, 128, d.Len())
 }
 
 func TestDenseShift(t *testing.T) {
-	a := Dense{0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
-	b := Dense{0xfe01fe01fe01fe01, 0xfe01fe01fe01fe01, 0xfe01fe01fe01fe00}
-	c := Dense{0x7f00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
+	a := Set{0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
+	b := Set{0xfe01fe01fe01fe01, 0xfe01fe01fe01fe01, 0xfe01fe01fe01fe00}
+	c := Set{0x7f00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
 
 	require.Equal(t, uint64(1), a.ShiftLeft(a, 1))
 	require.Equal(t, b, a)
 	require.Equal(t, uint64(0), a.ShiftRight(a, 1))
 	require.Equal(t, c, a)
 
-	d := Dense{0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
-	e := Dense{0x00ff00ff00ff00ff, 0x00ff00ff00ff00ff, 0x00ff00ff00ff00ff}
+	d := Set{0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
+	e := Set{0x00ff00ff00ff00ff, 0x00ff00ff00ff00ff, 0x00ff00ff00ff00ff}
 	require.Equal(t, uint64(0), d.ShiftRight(d, 8))
 	require.Equal(t, e, d)
 }
 
 func TestDenseRotate(t *testing.T) {
-	a := Dense{0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
-	b := Dense{0xfe01fe01fe01fe01, 0xfe01fe01fe01fe01, 0xfe01fe01fe01fe01}
-	c := NewDense(a.Len())
+	a := Set{0xff00ff00ff00ff00, 0xff00ff00ff00ff00, 0xff00ff00ff00ff00}
+	b := Set{0xfe01fe01fe01fe01, 0xfe01fe01fe01fe01, 0xfe01fe01fe01fe01}
+	c := New(a.Len())
 
 	c.RotateLeft(a, 1)
 	require.True(t, c.Equal(b))
@@ -90,11 +90,11 @@ func TestDenseRotate(t *testing.T) {
 }
 
 func TestDenseSlice(t *testing.T) {
-	a := NewDense(256)
+	a := New(256)
 	a.Slice(0, 128).Repeat(0x5555555555555555)
 	a.Slice(128, 256).Repeat(0xaaaaaaaaaaaaaaaa)
 
-	e := Dense{
+	e := Set{
 		0x5555555555555555, 0x5555555555555555,
 		0xaaaaaaaaaaaaaaaa, 0xaaaaaaaaaaaaaaaa,
 	}
@@ -103,18 +103,18 @@ func TestDenseSlice(t *testing.T) {
 }
 
 func TestDenseAccomodate(t *testing.T) {
-	a := NewDense(128)
+	a := New(128)
 	a.Repeat(0x5555555555555555)
-	b := NewDense(256)
+	b := New(256)
 	b.Repeat(0xaaaaaaaaaaaaaaaa)
-	var c Dense
+	var c Set
 	require.Equal(t, 0, c.Len())
 	c.Or(a, b)
 	require.Equal(t, 128, c.Len())
 }
 
 func TestDenseString(t *testing.T) {
-	a := Dense{0x5555555555555555, 0xaaaaaaaaaaaaaaaa, 0x5555555555555555}
+	a := Set{0x5555555555555555, 0xaaaaaaaaaaaaaaaa, 0x5555555555555555}
 	require.True(t, a.String() != "[]")
 	require.Equal(t, "[]", a.Slice(0, 0).String())
 }

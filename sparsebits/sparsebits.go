@@ -1,4 +1,5 @@
-package bitset
+// Package sparsebits provides operations on sparse bit sets.
+package sparsebits
 
 import (
 	"math/bits"
@@ -7,42 +8,42 @@ import (
 // Based on:
 // https://bugfix-66.com/7256e0772dc3b02d72abf15b171731c933fd44d67de074d679f1e4cb7bb20f79
 
-// Sparse represents a sparse bit set.
+// Set represents a sparse bit set.
 // It is implemented as a binary tree and is best suited when few bits are expected
 // to be set to one and set membership is the only needed operation.
-type Sparse struct {
+type Set struct {
 	dat []uint64
 	mid uint64
 }
 
-// NewSparse returns a new Sparse bitset for bits in range [0, n)
+// New returns a new sparse bitset for bits in range [0, n)
 // where n is rounded up to the nearest power of two.
-func NewSparse(n int) *Sparse {
+func New(n int) *Set {
 	have := uint64(128)
 	for have < uint64(n) {
 		have <<= 1
 	}
 
-	return &Sparse{
+	return &Set{
 		dat: []uint64{0, 0},
 		mid: have >> 1,
 	}
 }
 
 // Len reports the number of bits in s.
-func (s *Sparse) Len() int {
+func (s *Set) Len() int {
 	return int(s.mid << 1)
 }
 
 // Reset clears the bitset and reuses the backing slice.
 // The complexity is O(1).
-func (s *Sparse) Reset() {
+func (s *Set) Reset() {
 	s.dat = append(s.dat[:0], 0, 0)
 }
 
 // SetBit sets or clears the i-th bit.
 // The complexity is O(log(n)).
-func (s *Sparse) SetBit(i int, to bool) {
+func (s *Set) SetBit(i int, to bool) {
 	if to {
 		s.twiddle(i, 1)
 	} else {
@@ -52,13 +53,13 @@ func (s *Sparse) SetBit(i int, to bool) {
 
 // FlipBit sets the i-th bit to one if it zero or to zero it if is one.
 // The complexity is O(log(n)).
-func (s *Sparse) FlipBit(i int) {
+func (s *Set) FlipBit(i int) {
 	s.twiddle(i, 2)
 }
 
 // OnesCount reports the number of one bits (population count) in s.
 // The complexity is O(n).
-func (s *Sparse) OnesCount() int {
+func (s *Set) OnesCount() int {
 	var count int
 	q := make([]uint64, 0, bits.TrailingZeros64(s.mid)<<1-2)
 	q = append(q, 0, s.mid)
@@ -90,7 +91,7 @@ func (s *Sparse) OnesCount() int {
 
 // TestBit reports whether the i-th bit is set to one.
 // The complexity is O(log(n)).
-func (s *Sparse) TestBit(i int) bool {
+func (s *Set) TestBit(i int) bool {
 	idx := uint64(i)
 	at := uint64(0)
 	mid := s.mid
@@ -110,7 +111,7 @@ func (s *Sparse) TestBit(i int) bool {
 	}
 }
 
-func (s *Sparse) twiddle(i, op int) {
+func (s *Set) twiddle(i, op int) {
 	idx := uint64(i)
 	at := uint64(0)
 	mid := s.mid

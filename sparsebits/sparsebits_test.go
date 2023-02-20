@@ -1,4 +1,4 @@
-package bitset
+package sparsebits
 
 import (
 	"math/rand"
@@ -9,7 +9,7 @@ import (
 
 func TestSparseSetUnset(t *testing.T) {
 	n := 32000
-	b := NewSparse(n)
+	b := New(n)
 
 	require.True(t, b.Len()&(b.Len()-1) == 0)
 
@@ -36,7 +36,7 @@ func TestSparseSetUnset(t *testing.T) {
 }
 
 func TestSparseCount(t *testing.T) {
-	b := NewSparse(1000)
+	b := New(1000)
 
 	rnd := rand.New(rand.NewSource(0))
 	xs := rnd.Perm(b.Len())
