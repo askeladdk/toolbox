@@ -1,6 +1,7 @@
 package bloom
 
 import (
+	"math"
 	"strconv"
 	"sync"
 	"testing"
@@ -73,6 +74,14 @@ func TestUnion(t *testing.T) {
 	}
 
 	require.True(t, d < 10)
+}
+
+func TestLenMax(t *testing.T) {
+	f := New(100000)
+	for i := 0; i < len(f); i++ {
+		f[i] = math.MaxUint64
+	}
+	require.Equal(t, math.MaxInt, f.Len())
 }
 
 func TestUnionPanic(t *testing.T) {
