@@ -4,39 +4,36 @@
 package queue
 
 // Queue implements a generic queue.
-// A queue is a first-in-first-out data structure
-// in which elements are removed in the order they were added.
-//
-// The queue acts as a ring buffer as long as there is capacity for more elements,
-// but resizes when it is at capacity and a new element is pushed.
 //
 // The zero value for Queue is an empty queue ready to use.
-type Queue[T any] struct {
-	elem []T
+type Queue[E any] struct {
+	elem []E
 	head int
 	tail int
 }
 
 // New returns a new empty queue with an initial capacity
 // provided by buf.
-func New[T any](buf []T) *Queue[T] {
-	return &Queue[T]{
+func New[E any](buf []E) *Queue[E] {
+	return &Queue[E]{
 		elem: buf,
 	}
 }
 
 // Cap reports the total capacity of q.
-func (q *Queue[T]) Cap() int {
+func (q *Queue[E]) Cap() int {
 	return len(q.elem)
 }
 
 // Empty reports whether q is empty.
-func (q *Queue[T]) Empty() bool {
+// The complexity is O(1).
+func (q *Queue[E]) Empty() bool {
 	return q.head == q.tail
 }
 
 // Len reports the number of elements in q.
-func (q *Queue[T]) Len() int {
+// The complexity is O(1).
+func (q *Queue[E]) Len() int {
 	if len(q.elem) == 0 {
 		return 0
 	}
@@ -45,7 +42,8 @@ func (q *Queue[T]) Len() int {
 
 // Peek returns the front element of q without removing it.
 // Panics if q is empty.
-func (q *Queue[T]) Peek() T {
+// The complexity is O(1).
+func (q *Queue[E]) Peek() E {
 	if q.Empty() {
 		panic("queue: underflow")
 	}
@@ -55,23 +53,27 @@ func (q *Queue[T]) Peek() T {
 
 // Peek removes and returns the front element of q.
 // Panics if q is empty.
-func (q *Queue[T]) Pop() T {
-	var zeroval T
+// The complexity is O(1).
+func (q *Queue[E]) Pop() E {
+	var zeroval E
 	x := q.Peek()
 	q.elem[q.index(q.tail)] = zeroval
 	q.tail = q.wraparound(q.tail + 1)
 	return x
 }
 
-// Push appends x to the front of q.
-func (q *Queue[T]) Push(x T) {
+// Push appends x to the front of q
+// and automatically allocates more capacity when needed.
+// The complexity is O(1) amortized.
+func (q *Queue[E]) Push(x E) {
 	q.Grow(1)
 	q.elem[q.index(q.head)] = x
 	q.head = q.wraparound(q.head + 1)
 }
 
 // Grow ensures that q has capacity for at least n elements.
-func (q *Queue[T]) Grow(n int) {
+// The complexity is O(n) if resizing is needed.
+func (q *Queue[E]) Grow(n int) {
 	if n < 0 {
 		panic("queue: cannot negative grow")
 	}
@@ -79,7 +81,7 @@ func (q *Queue[T]) Grow(n int) {
 	size := len(q.elem)
 
 	if size == 0 {
-		q.elem = make([]T, n)
+		q.elem = make([]E, n)
 		return
 	}
 
@@ -87,7 +89,7 @@ func (q *Queue[T]) Grow(n int) {
 		return
 	}
 
-	elem := append(q.elem, make([]T, n)...)
+	elem := append(q.elem, make([]E, n)...)
 	elem = elem[:cap(elem)]
 
 	// if the index of head <= tail,
@@ -111,12 +113,12 @@ func (q *Queue[T]) Grow(n int) {
 	if hi <= lo {
 		// copy the shortest run to tmp
 		if hi < size-lo {
-			tmp := make([]T, hi)
+			tmp := make([]E, hi)
 			copy(tmp, elem[:hi])
 			copy(elem, elem[lo:size])
 			copy(elem[size-lo:], tmp)
 		} else {
-			tmp := make([]T, size-lo)
+			tmp := make([]E, size-lo)
 			copy(tmp, elem[lo:size])
 			copy(elem[size-lo:], elem[:hi])
 			copy(elem, tmp)
@@ -129,11 +131,11 @@ func (q *Queue[T]) Grow(n int) {
 	q.elem = elem
 }
 
-func (q *Queue[T]) index(i int) int {
+func (q *Queue[E]) index(i int) int {
 	return i % len(q.elem)
 }
 
-func (q *Queue[T]) wraparound(i int) int {
+func (q *Queue[E]) wraparound(i int) int {
 	if i < 0 {
 		i = -i
 	}
