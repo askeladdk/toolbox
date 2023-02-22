@@ -36,8 +36,8 @@ func TestDenseSetOps(t *testing.T) {
 	b := New(128)
 	c := New(128)
 
-	a.Repeat(0x5555555555555555)
-	b.Repeat(0xaaaaaaaaaaaaaaaa)
+	a.Fill(0x5555555555555555)
+	b.Fill(0xaaaaaaaaaaaaaaaa)
 	require.Equal(t, 64, a.OnesCount())
 	require.Equal(t, 64, b.OnesCount())
 
@@ -91,8 +91,8 @@ func TestDenseRotate(t *testing.T) {
 
 func TestDenseSlice(t *testing.T) {
 	a := New(256)
-	a.Slice(0, 128).Repeat(0x5555555555555555)
-	a.Slice(128, 256).Repeat(0xaaaaaaaaaaaaaaaa)
+	a.Slice(0, 128).Fill(0x5555555555555555)
+	a.Slice(128, 256).Fill(0xaaaaaaaaaaaaaaaa)
 
 	e := Set{
 		0x5555555555555555, 0x5555555555555555,
@@ -104,9 +104,9 @@ func TestDenseSlice(t *testing.T) {
 
 func TestDenseAccomodate(t *testing.T) {
 	a := New(128)
-	a.Repeat(0x5555555555555555)
+	a.Fill(0x5555555555555555)
 	b := New(256)
-	b.Repeat(0xaaaaaaaaaaaaaaaa)
+	b.Fill(0xaaaaaaaaaaaaaaaa)
 	var c Set
 	require.Equal(t, 0, c.Len())
 	c.Or(a, b)

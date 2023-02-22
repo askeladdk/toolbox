@@ -178,18 +178,18 @@ func (s *Set) RotateRight(p Set, n int) {
 	(*s)[0] |= remainder
 }
 
-// Repeat sets all words separated by stride indices in s to x.
+// Fill sets all words to x.
 // The complexity is O(n).
-func (s Set) Repeat(x uint64) {
+func (s Set) Fill(x uint64) {
 	for i := 0; i < len(s); i++ {
 		s[i] = x
 	}
 }
 
-// Reset shorthand for Repeat(0).
+// Reset shorthand for Fill(0).
 // The complexity is O(n).
 func (s Set) Reset() {
-	s.Repeat(0)
+	s.Fill(0)
 }
 
 // Slice returns a slice of s in the range of [lo, hi) bits,
