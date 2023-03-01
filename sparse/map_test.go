@@ -47,4 +47,5 @@ func TestMap(t *testing.T) {
 	m.Set(1, 1)
 	m.Reset()
 	require.Equal(t, 0, m.Len())
+	require.True(t, m.Empty())
 }

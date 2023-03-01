@@ -40,6 +40,11 @@ func (m *Map[E, T]) Len() int {
 	return m.set.Len()
 }
 
+// Empty reports whether the map is empty.
+func (s *Map[E, T]) Empty() bool {
+	return s.set.Empty()
+}
+
 // Reset clears the map.
 func (m *Map[E, T]) Reset() {
 	var zeroval T

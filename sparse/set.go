@@ -56,6 +56,11 @@ func (s *Set[E]) Len() int {
 	return len(s.dense)
 }
 
+// Empty reports whether the set is empty.
+func (s *Set[E]) Empty() bool {
+	return len(s.dense) == 0
+}
+
 // Reset clears the set.
 func (s *Set[E]) Reset() {
 	for i := range s.sparse {
