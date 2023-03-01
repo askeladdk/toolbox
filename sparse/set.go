@@ -1,6 +1,10 @@
 // Package sparse provides sparse set and map implementations
-// that are efficiently pack their data in contiguous memory.
+// that efficiently pack their data in contiguous memory.
 // The space complexity is O(n) and the time complexity of most operations is O(1).
+// Due to the particulars of the representation Set and Map can only store integer keys.
+//
+// The implementation is based on the paper An Efficient Representation for Sparse Sets:
+// https://citeseerx.ist.psu.edu/doc/10.1.1.30.7319
 package sparse
 
 import (
@@ -8,16 +12,13 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// An Efficient Representation For Sparse Sets
-// https://citeseerx.ist.psu.edu/doc/10.1.1.30.7319
-
 // Set represents a sparse set of integers.
 type Set[E constraints.Integer] struct {
 	dense  []E
 	sparse []E
 }
 
-// NewSet returns a new Set with a maximum capacity of cap.
+// NewSet returns a new Set with an initial capacity of cap.
 func NewSet[E constraints.Integer](cap int) *Set[E] {
 	if cap < 1 {
 		cap = 1
@@ -34,7 +35,7 @@ func NewSet[E constraints.Integer](cap int) *Set[E] {
 
 // Grow ensures that s has space for at least n members.
 func (m *Set[E]) Grow(n int) {
-	if z := n - len(m.sparse) + 1; z > 0 {
+	if z := n - len(m.sparse); z > 0 {
 		oldn := len(m.sparse)
 		m.sparse = slices.Grow(m.sparse, z)
 		m.sparse = m.sparse[:cap(m.sparse)]
@@ -109,7 +110,7 @@ func (s *Set[E]) Less(i, j int) bool {
 }
 
 func (s *Set[E]) add(k E) bool {
-	s.Grow(int(k))
+	s.Grow(int(k) + 1)
 	a := s.sparse[k]
 	n := len(s.dense)
 	if a >= E(n) || s.dense[a] != k {
