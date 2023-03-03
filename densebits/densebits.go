@@ -23,9 +23,9 @@ func (s Set) Len() int {
 	return len(s) * 64
 }
 
-// SetBit sets or clears the i-th bit.
+// Set sets or clears the i-th bit.
 // The complexity is O(1).
-func (s Set) SetBit(i int, to bool) {
+func (s Set) Set(i int, to bool) {
 	w, b := wordbit(i)
 	if to {
 		s[w] |= b
@@ -34,16 +34,16 @@ func (s Set) SetBit(i int, to bool) {
 	}
 }
 
-// TestBit reports whether the i-th bit is set to one.
+// Get reports whether the i-th bit is set to one.
 // The complexity is O(1).
-func (s Set) TestBit(i int) bool {
+func (s Set) Get(i int) bool {
 	w, b := wordbit(i)
 	return s[w]&b != 0
 }
 
-// Test reports whether the i-th bit is set to one.
+// Flip sets the i-th bit to one if it zero or to zero it if is one.
 // The complexity is O(1).
-func (s Set) FlipBit(i int) {
+func (s Set) Flip(i int) {
 	w, b := wordbit(i)
 	s[w] ^= b
 }

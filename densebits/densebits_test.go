@@ -6,26 +6,26 @@ import (
 	"github.com/askeladdk/toolbox/internal/require"
 )
 
-func TestDenseSetTestFlip(t *testing.T) {
+func TestDenseSetGetFlip(t *testing.T) {
 	a := New(1024)
 
 	for i := 0; i < a.Len(); i++ {
-		a.SetBit(i, true)
-		require.True(t, a.TestBit(i))
+		a.Set(i, true)
+		require.True(t, a.Get(i))
 	}
 
 	require.Equal(t, a.Len(), a.OnesCount())
 
 	for i := 0; i < a.Len(); i += 2 {
-		a.SetBit(i, false)
-		require.True(t, !a.TestBit(i))
+		a.Set(i, false)
+		require.True(t, !a.Get(i))
 	}
 
 	require.Equal(t, a.Len()/2, a.OnesCount())
 
 	a.Reset()
 	require.Equal(t, 0, a.OnesCount())
-	a.FlipBit(0)
+	a.Flip(0)
 	require.Equal(t, 1, a.OnesCount())
 
 	require.True(t, !a.Equal(Set{}))

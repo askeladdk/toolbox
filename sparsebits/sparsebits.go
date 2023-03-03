@@ -41,9 +41,9 @@ func (s *Set) Reset() {
 	s.dat = append(s.dat[:0], 0, 0)
 }
 
-// SetBit sets or clears the i-th bit.
+// Set sets or clears the i-th bit.
 // The complexity is O(log(n)).
-func (s *Set) SetBit(i int, to bool) {
+func (s *Set) Set(i int, to bool) {
 	if to {
 		s.twiddle(i, 1)
 	} else {
@@ -51,9 +51,9 @@ func (s *Set) SetBit(i int, to bool) {
 	}
 }
 
-// FlipBit sets the i-th bit to one if it zero or to zero it if is one.
+// Flip sets the i-th bit to one if it zero or to zero it if is one.
 // The complexity is O(log(n)).
-func (s *Set) FlipBit(i int) {
+func (s *Set) Flip(i int) {
 	s.twiddle(i, 2)
 }
 
@@ -89,9 +89,9 @@ func (s *Set) OnesCount() int {
 	return count
 }
 
-// TestBit reports whether the i-th bit is set to one.
+// Get reports whether the i-th bit is set to one.
 // The complexity is O(log(n)).
-func (s *Set) TestBit(i int) bool {
+func (s *Set) Get(i int) bool {
 	idx := uint64(i)
 	at := uint64(0)
 	mid := s.mid
