@@ -5,7 +5,7 @@
 // Modified to support generics from the original:
 // https://cs.opensource.google/go/go/+/refs/tags/go1.20:src/container/heap/heap_test.go
 
-package heapx
+package xheap
 
 import (
 	"math/rand"

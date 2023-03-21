@@ -5,10 +5,10 @@
 // Modified to support generics from the original code:
 // https://cs.opensource.google/go/go/+/refs/tags/go1.20:src/container/heap/heap.go
 
-// Package heapx is a variation of the standard container/heap package
+// Package xheap is a variation of the standard container/heap package
 // that supports generics.
 // The package provides heap operations for any type that implements
-// heapx.Interface. A heap is a tree with the property that each node is the
+// xheap.Interface. A heap is a tree with the property that each node is the
 // minimum-valued node in its subtree.
 //
 // The minimum element in the tree is the root, at index 0.
@@ -17,7 +17,7 @@
 // queue, implement the Heap interface with the (negative) priority as the
 // ordering for the Less method, so Push adds items while Pop removes the
 // highest-priority item from the queue.
-package heapx
+package xheap
 
 import "sort"
 
