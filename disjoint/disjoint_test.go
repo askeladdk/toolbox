@@ -8,7 +8,7 @@ import (
 )
 
 func TestSet(t *testing.T) {
-	set := New(make([]int, 8))
+	set := New(8)
 	set.Union(0, 0)
 	set.Union(0, 1)
 	set.Union(0, 2)
@@ -52,7 +52,7 @@ func TestZeroPanic(t *testing.T) {
 func TestStressTest(t *testing.T) {
 	rnd := rand.New(rand.NewSource(0))
 
-	set := New(make([]int, 10000))
+	set := New(10000)
 
 	is := rnd.Perm(set.Len())
 	for i := 1; i < len(is); i++ {

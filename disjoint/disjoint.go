@@ -12,12 +12,19 @@ package disjoint
 //   - x = 0 is a link to node 0.
 type Set []int
 
-// New creates a disjoint set containing len(s) singleton groups.
-func New(s []int) Set {
+// New creates a disjoint set containing n singleton groups.
+func New(n int) Set {
+	s := make(Set, n)
+	s.Reset()
+	return s
+}
+
+// Reset clears the set to have Len() singleton groups.
+// The complexity is O(n).
+func (s Set) Reset() {
 	for i := range s {
 		s[i] = 1
 	}
-	return s
 }
 
 // Find returns the root of i.
