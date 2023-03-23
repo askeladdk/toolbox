@@ -28,6 +28,7 @@ func (s Set) Reset() {
 }
 
 // Find returns the root of i.
+// The complexity is O(α(n)), which is O(1) for all practical purposes.
 func (s Set) Find(i int) int {
 	val := s[i]
 	switch {
@@ -51,6 +52,7 @@ func (s Set) Find(i int) int {
 // whereby the smaller group is merged into the larger.
 // Returns true if the groups were merged or false if
 // i and j are already in the same group.
+// The complexity is O(α(n)), which is O(1) for all practical purposes.
 func (s Set) Union(i, j int) bool {
 	p := s.Find(i)
 	q := s.Find(j)
@@ -70,6 +72,7 @@ func (s Set) Union(i, j int) bool {
 }
 
 // Same reports whether nodes i and j are in the same group.
+// The complexity is O(α(n)), which is O(1) for all practical purposes.
 func (s Set) Same(i, j int) bool {
 	return s.Find(i) == s.Find(j)
 }
@@ -80,11 +83,13 @@ func (s Set) Len() int {
 }
 
 // Size reports the size of the group of i.
+// The complexity is O(α(n)), which is O(1) for all practical purposes.
 func (s Set) Size(i int) int {
 	return s[s.Find(i)]
 }
 
 // CountGroups reports the number of groups in s.
+// The complexity is O(n).
 func (s Set) CountGroups() int {
 	n := 0
 	for _, v := range s {
