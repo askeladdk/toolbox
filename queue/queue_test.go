@@ -9,7 +9,7 @@ import (
 func TestPushPop(t *testing.T) {
 	values := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}
 
-	q := New([]int{})
+	q := New[int](10)
 
 	require.Equal(t, 0, q.Len())
 

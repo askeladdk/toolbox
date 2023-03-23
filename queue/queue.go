@@ -12,11 +12,10 @@ type Queue[E any] struct {
 	tail int
 }
 
-// New returns a new empty queue with an initial capacity
-// provided by buf.
-func New[E any](buf []E) *Queue[E] {
+// New returns a new empty queue with an initial capacity.
+func New[E any](cap int) *Queue[E] {
 	return &Queue[E]{
-		elem: buf,
+		elem: make([]E, cap),
 	}
 }
 
@@ -29,6 +28,17 @@ func (q *Queue[E]) Cap() int {
 // The complexity is O(1).
 func (q *Queue[E]) Empty() bool {
 	return q.head == q.tail
+}
+
+// Reset clears the queue without deallocation the underlying memory.
+func (q *Queue[E]) Reset() {
+	q.head = 0
+	q.tail = 0
+	// clear any possible pointers to prevent memory leaks
+	var zero E
+	for i := range q.elem {
+		q.elem[i] = zero
+	}
 }
 
 // Len reports the number of elements in q.
