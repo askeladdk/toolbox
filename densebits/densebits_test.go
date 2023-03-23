@@ -118,3 +118,12 @@ func TestDenseString(t *testing.T) {
 	require.True(t, a.String() != "[]")
 	require.Equal(t, "[]", a.Slice(0, 0).String())
 }
+
+func TestGrow(t *testing.T) {
+	d := New(100)
+	require.True(t, d.Len() >= 100)
+	d.Grow(200)
+	require.True(t, d.Len() >= 200)
+	d.Grow(150)
+	require.True(t, d.Len() >= 200)
+}

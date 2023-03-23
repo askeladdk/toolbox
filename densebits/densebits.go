@@ -192,6 +192,13 @@ func (s Set) Reset() {
 	s.Fill(0)
 }
 
+// Grow ensures that the Set has space for at least n bits.
+func (s *Set) Grow(n int) {
+	if d := n - s.Len(); d > 0 {
+		*s = append(*s, make(Set, (d+63)/64)...)
+	}
+}
+
 // Slice returns a slice of s in the range of [lo, hi) bits,
 // where lo and hi are rounded to a multiple of 64 bits.
 // The slice obeys all the ordinary slice rules.
