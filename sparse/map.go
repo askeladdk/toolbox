@@ -9,17 +9,17 @@ type Map[E constraints.Integer, T any] struct {
 	values []T
 }
 
-// NewMap returns a new Map with an initial capacity of cap.
-func NewMap[E constraints.Integer, T any](cap int) *Map[E, T] {
-	if cap < 1 {
-		cap = 1
+// NewMap returns a new Map given an initial capacity.
+func NewMap[E constraints.Integer, T any](capacity int) *Map[E, T] {
+	if capacity < 1 {
+		capacity = 1
 	}
 	return &Map[E, T]{
 		set: Set[E]{
-			dense:  make([]E, 0, cap),
-			sparse: make([]E, cap),
+			dense:  make([]E, 0, capacity),
+			sparse: make([]E, capacity),
 		},
-		values: make([]T, 0, cap),
+		values: make([]T, 0, capacity),
 	}
 }
 
@@ -41,8 +41,8 @@ func (m *Map[E, T]) Len() int {
 }
 
 // Empty reports whether the map is empty.
-func (s *Map[E, T]) Empty() bool {
-	return s.set.Empty()
+func (m *Map[E, T]) Empty() bool {
+	return m.set.Empty()
 }
 
 // Reset clears the map.

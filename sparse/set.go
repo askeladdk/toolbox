@@ -18,29 +18,29 @@ type Set[E constraints.Integer] struct {
 	sparse []E
 }
 
-// NewSet returns a new Set with an initial capacity of cap.
-func NewSet[E constraints.Integer](cap int) *Set[E] {
-	if cap < 1 {
-		cap = 1
+// NewSet returns a new Set given an initial capacity.
+func NewSet[E constraints.Integer](capacity int) *Set[E] {
+	if capacity < 1 {
+		capacity = 1
 	}
-	sparse := make([]E, cap)
+	sparse := make([]E, capacity)
 	for i := range sparse {
 		sparse[i] = ^E(0)
 	}
 	return &Set[E]{
-		dense:  make([]E, 0, cap),
+		dense:  make([]E, 0, capacity),
 		sparse: sparse,
 	}
 }
 
 // Grow ensures that s has space for at least n members.
-func (m *Set[E]) Grow(n int) {
-	if z := n - len(m.sparse); z > 0 {
-		oldn := len(m.sparse)
-		m.sparse = slices.Grow(m.sparse, z)
-		m.sparse = m.sparse[:cap(m.sparse)]
-		for i := oldn; i < len(m.sparse); i++ {
-			m.sparse[i] = ^E(0)
+func (s *Set[E]) Grow(n int) {
+	if z := n - len(s.sparse); z > 0 {
+		oldn := len(s.sparse)
+		s.sparse = slices.Grow(s.sparse, z)
+		s.sparse = s.sparse[:cap(s.sparse)]
+		for i := oldn; i < len(s.sparse); i++ {
+			s.sparse[i] = ^E(0)
 		}
 	}
 }
@@ -97,11 +97,11 @@ func (s *Set[E]) Keys() []E {
 }
 
 // Swap implements sort.Interface.
-func (m *Set[E]) Swap(i, j int) {
-	p := m.dense[i]
-	q := m.dense[j]
-	m.sparse[p], m.sparse[q] = m.sparse[q], m.sparse[p]
-	m.dense[i], m.dense[j] = m.dense[j], m.dense[i]
+func (s *Set[E]) Swap(i, j int) {
+	p := s.dense[i]
+	q := s.dense[j]
+	s.sparse[p], s.sparse[q] = s.sparse[q], s.sparse[p]
+	s.dense[i], s.dense[j] = s.dense[j], s.dense[i]
 }
 
 // Less implements sort.Interface.

@@ -99,7 +99,8 @@ func (q *Queue[E]) Grow(n int) {
 		return
 	}
 
-	elem := append(q.elem, make([]E, n)...)
+	elem := q.elem
+	elem = append(elem, make([]E, n)...)
 	elem = elem[:cap(elem)]
 
 	// if the index of head <= tail,
