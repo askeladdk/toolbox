@@ -201,7 +201,7 @@ func Estimate(n int, p float64) (m int) {
 	const c = -0.4804530139182015 // log(1/pow(2,log(2)))
 	m = int(math.Ceil(float64(n) * math.Log(p) / c))
 	m = (m + 511) &^ 511
-	return
+	return m
 }
 
 // Uint64 hashes x using the moremur mixer function.
@@ -229,7 +229,7 @@ func sectors(h0, h1, n uint32) (s0, s1, s2, s3 uint32) {
 	s1 = bl + 2 + (2*h1)>>31
 	s2 = bl + 4 + (3*h1)>>31
 	s3 = bl + 6 + (4*h1)>>31
-	return
+	return s0, s1, s2, s3
 }
 
 func bitmasks(h0, h1 uint32) (z0, z1, z2, z3 uint64) {
@@ -241,7 +241,7 @@ func bitmasks(h0, h1 uint32) (z0, z1, z2, z3 uint64) {
 	z2 |= 1 << (((h0 + 6*h1) >> 16) & 63)
 	z3 |= 1 << (((h0 + 7*h1) >> 16) & 63)
 	z3 |= 1 << (((h0 + 8*h1) >> 16) & 63)
-	return
+	return z0, z1, z2, z3
 }
 
 func splithash(h uint64) (h0, h1 uint32) {

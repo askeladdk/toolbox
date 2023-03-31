@@ -28,7 +28,7 @@ func (h *myHeap) Len() int {
 
 func (h *myHeap) Pop() (v int) {
 	*h, v = (*h)[:h.Len()-1], (*h)[h.Len()-1]
-	return
+	return v
 }
 
 func (h *myHeap) Push(v int) {

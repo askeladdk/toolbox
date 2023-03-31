@@ -140,7 +140,7 @@ func (s *Set) ShiftLeft(p Set, n int) (remainder uint64) {
 		(*s)[i-1] |= (pi >> uint64(64-n))
 		(*s)[i] = pi << n
 	}
-	return
+	return remainder
 }
 
 // ShiftRight stores the result of p >> n in s,
@@ -157,7 +157,7 @@ func (s *Set) ShiftRight(p Set, n int) (remainder uint64) {
 		remainder = (pi & mask) << (64 - n)
 		(*s)[i] = x
 	}
-	return
+	return remainder
 }
 
 // RotateLeft stores the result of p left rotated by n bits in s,

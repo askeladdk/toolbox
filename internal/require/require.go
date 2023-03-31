@@ -5,22 +5,22 @@ import (
 	"testing"
 )
 
-func Equal[T any](t testing.TB, expected, got T, args ...any) {
+func Equal[T any](tb testing.TB, expected, got T, args ...any) {
+	tb.Helper()
 	if !reflect.DeepEqual(expected, got) {
-		t.Helper()
 		if len(args) == 0 {
-			t.Fatal(expected, "is not", got)
+			tb.Fatal(expected, "is not", got)
 		}
-		t.Fatal(args...)
+		tb.Fatal(args...)
 	}
 }
 
-func True(t testing.TB, test bool, args ...any) {
+func True(tb testing.TB, test bool, args ...any) {
+	tb.Helper()
 	if !test {
-		t.Helper()
 		if len(args) == 0 {
-			t.Fatal("is false")
+			tb.Fatal("is false")
 		}
-		t.Fatal(args...)
+		tb.Fatal(args...)
 	}
 }

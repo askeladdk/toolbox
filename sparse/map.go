@@ -88,7 +88,7 @@ func (m *Map[E, T]) Get(k E) (v T, exists bool) {
 	if i, exists = m.Index(k); exists {
 		v = m.values[i]
 	}
-	return
+	return v, exists
 }
 
 // Swap implements sort.Interface.
