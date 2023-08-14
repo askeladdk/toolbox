@@ -1,16 +1,14 @@
 package sparse
 
-import "golang.org/x/exp/constraints"
-
 // Map represents a sparse map of integer keys
 // and arbitrarily typed values.
-type Map[E constraints.Integer, T any] struct {
+type Map[E Integer, T any] struct {
 	set    Set[E]
 	values []T
 }
 
 // NewMap returns a new Map given an initial capacity.
-func NewMap[E constraints.Integer, T any](capacity int) *Map[E, T] {
+func NewMap[E Integer, T any](capacity int) *Map[E, T] {
 	if capacity < 1 {
 		capacity = 1
 	}
@@ -55,7 +53,7 @@ func (m *Map[E, T]) Reset() {
 	m.set.Reset()
 }
 
-// Has reports whether k is a member of s, where 0 <= x < s.Cap().
+// Has reports whether k is a member of s, where 0 <= k < s.Cap().
 // The complexity is O(1).
 func (m *Map[E, T]) Has(k E) bool {
 	return m.set.Has(k)
@@ -69,10 +67,10 @@ func (m *Map[E, T]) Set(k E, v T) {
 	}
 }
 
-// Del removes x from s, where 0 <= x < s.Cap().
+// Del removes k from s, where 0 <= k < s.Cap().
 // The complexity is O(1).
-func (m *Map[E, T]) Del(x E) {
-	if i := m.set.del(x); i != -1 {
+func (m *Map[E, T]) Del(k E) {
+	if i := m.set.del(k); i != -1 {
 		var zeroval T
 		n := len(m.values) - 1
 		m.values[i] = m.values[n]

@@ -7,19 +7,23 @@
 // https://citeseerx.ist.psu.edu/doc/10.1.1.30.7319
 package sparse
 
-import (
-	"golang.org/x/exp/constraints"
-	"golang.org/x/exp/slices"
-)
+import "slices"
+
+// Integer is a constraint that permits any integer type.
+// Only integer types can be used as keys in sparse sets and maps.
+type Integer interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
+}
 
 // Set represents a sparse set of integers.
-type Set[E constraints.Integer] struct {
+type Set[E Integer] struct {
 	dense  []E
 	sparse []E
 }
 
 // NewSet returns a new Set given an initial capacity.
-func NewSet[E constraints.Integer](capacity int) *Set[E] {
+func NewSet[E Integer](capacity int) *Set[E] {
 	if capacity < 1 {
 		capacity = 1
 	}
@@ -77,13 +81,13 @@ func (s *Set[E]) Has(k E) bool {
 	return a < E(len(s.dense)) && s.dense[a] == k
 }
 
-// Add includes k in s, where 0 <= x < s.Cap().
+// Add includes k in s, where 0 <= k < s.Cap().
 // The complexity is O(1).
 func (s *Set[E]) Add(k E) {
 	s.add(k)
 }
 
-// Del removes k from s, where 0 <= x < s.Cap().
+// Del removes k from s, where 0 <= k < s.Cap().
 // The complexity is O(1).
 func (s *Set[E]) Del(k E) {
 	s.del(k)
