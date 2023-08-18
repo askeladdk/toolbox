@@ -13,3 +13,4 @@ Package toolbox provides common and useful algorithms and data structures.
 | sparse     | Efficient sparse set and map.
 | sparsebits | Sparse bit set.
 | xheap      | Generic heap adapted from container/heap.
+| xslices    | Algorithms that operate on slices of any type.
