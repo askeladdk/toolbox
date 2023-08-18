@@ -35,10 +35,7 @@ func (q *Queue[E]) Reset() {
 	q.head = 0
 	q.tail = 0
 	// clear any possible pointers to prevent memory leaks
-	var zero E
-	for i := range q.elem {
-		q.elem[i] = zero
-	}
+	clear(q.elem)
 }
 
 // Len reports the number of elements in q.
