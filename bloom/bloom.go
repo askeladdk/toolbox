@@ -44,6 +44,7 @@ import (
 // z = 4
 
 // Filter is a bloom filter.
+// It is thread-safe and can be used concurrently.
 type Filter []uint64
 
 // New returns a new Filter having m bits of memory.
@@ -60,8 +61,8 @@ func NewWithEstimate(n int, p float64) Filter {
 // Add includes h in the filter.
 // Adding h twice does not change the filter.
 // The complexity is O(1).
-func (f Filter) Add(x uint64) {
-	h0, h1 := splithash(x)
+func (f Filter) Add(h uint64) {
+	h0, h1 := splithash(h)
 	s0, s1, s2, s3 := sectors(h0, h1, uint32(len(f)))
 	z0, z1, z2, z3 := bitmasks(h0, h1)
 	f.atomicSetBits(s0, z0)
@@ -74,8 +75,8 @@ func (f Filter) Add(x uint64) {
 // Returns true if h probably exists
 // and false if it definitely does not.
 // The complexity is O(1).
-func (f Filter) Test(x uint64) bool {
-	h0, h1 := splithash(x)
+func (f Filter) Test(h uint64) bool {
+	h0, h1 := splithash(h)
 	s0, s1, s2, s3 := sectors(h0, h1, uint32(len(f)))
 	z0, z1, z2, z3 := bitmasks(h0, h1)
 	m0 := atomic.LoadUint64(&f[s0])
@@ -85,11 +86,11 @@ func (f Filter) Test(x uint64) bool {
 	return m0&z0 == z0 && m1&z1 == z1 && m2&z2 == z2 && m3&z3 == z3
 }
 
-// TestAndAdd is shorthand for Test(x) followed by Add(x)
+// TestAndAdd is shorthand for Test(h) followed by Add(h)
 // but is more efficient than calling them separately.
 // The complexity is O(1).
-func (f Filter) TestAndAdd(x uint64) bool {
-	h0, h1 := splithash(x)
+func (f Filter) TestAndAdd(h uint64) bool {
+	h0, h1 := splithash(h)
 	s0, s1, s2, s3 := sectors(h0, h1, uint32(len(f)))
 	z0, z1, z2, z3 := bitmasks(h0, h1)
 	m0 := f.atomicSetBits(s0, z0)
@@ -133,7 +134,7 @@ func (f Filter) Equal(g Filter) bool {
 
 // Len estimates the number of elements in the filter.
 // Returns [math.MaxInt] if all bits in f are set to 1,
-// meaning that Test(x) is true for all x.
+// meaning that Test(h) is true for all h.
 // The complexity is O(n).
 func (f Filter) Len() int {
 	// https://en.wikipedia.org/wiki/Bloom_filter#Approximating_the_number_of_items_in_a_Bloom_filter
@@ -185,7 +186,7 @@ func (f Filter) atomicSetBits(s uint32, z uint64) (old uint64) {
 	for {
 		old = atomic.LoadUint64(&f[s])
 		if old&z == z || atomic.CompareAndSwapUint64(&f[s], old, old|z) {
-			return
+			return old
 		}
 	}
 }

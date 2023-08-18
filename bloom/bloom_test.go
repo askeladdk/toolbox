@@ -2,8 +2,10 @@ package bloom
 
 import (
 	"math"
+	"runtime"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/askeladdk/toolbox/internal/require"
@@ -146,22 +148,16 @@ func BenchmarkBloomFilter(b *testing.B) {
 }
 
 func BenchmarkParallelism(b *testing.B) {
-	for _, c := range []int{1, 2, 4, 8, 16, 32, 64} {
-		b.Run(strconv.Itoa(c), func(b *testing.B) {
-			n := 1000000
-			f := New(Estimate(n, 0.01))
-			d := n / c
-			var wg sync.WaitGroup
-			for i := 1; i <= n; i += d {
-				wg.Add(1)
-				go func(i, j int) {
-					for ; i < j; i++ {
-						f.Add(Int(i))
-					}
-					wg.Done()
-				}(i, i+d)
-			}
-			wg.Wait()
-		})
-	}
+	f := New(Estimate(b.N, 0.01))
+	b.ResetTimer()
+
+	c := b.N / runtime.GOMAXPROCS(0)
+	var i uint64
+
+	b.RunParallel(func(p *testing.PB) {
+		j := atomic.AddUint64(&i, 1) * uint64(c)
+		for ; p.Next(); j++ {
+			f.Add(Uint64(j))
+		}
+	})
 }
