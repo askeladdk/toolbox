@@ -4,10 +4,86 @@ import (
 	"cmp"
 	"math/rand"
 	"slices"
+	"strconv"
 	"testing"
 
 	"github.com/askeladdk/toolbox/internal/require"
 )
+
+func TestPartitionFunc(t *testing.T) {
+	rnd := rand.New(rand.NewSource(0))
+
+	for i, tt := range []struct {
+		Input []int
+	}{
+		{
+			Input: []int{},
+		},
+		{
+			Input: []int{1},
+		},
+		{
+			Input: []int{2},
+		},
+		{
+			Input: []int{2, 4, 8, 6, 3, 9, 1, 7, 5},
+		},
+		{
+			Input: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		},
+		{
+			Input: []int{7, 2, 9, 4, 5, 1, 6, 4, 3},
+		},
+		{
+			Input: []int{2, 4, 8, 6},
+		},
+		{
+			Input: []int{3, 9, 1, 7, 5},
+		},
+		{
+			Input: rnd.Perm(1337),
+		},
+		{
+			Input: rnd.Perm(42069),
+		},
+		{
+			Input: rnd.Perm(100000),
+		},
+	} {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			i := PartitionFunc(tt.Input, iseven)
+			require.True(t, all(tt.Input[:i], iseven))
+			require.True(t, !slices.ContainsFunc(tt.Input[i:], iseven))
+		})
+	}
+}
+
+func BenchmarkPartition(b *testing.B) {
+	rnd := rand.New(rand.NewSource(0))
+	s := rnd.Perm(100000)
+	b.ResetTimer()
+	half := func(n int) bool { return n < 50000 }
+
+	b.Run("PartitionFunc(iseven)", func(b *testing.B) {
+		z := make([]int, len(s))
+		b.SetBytes(int64(len(s) * 8))
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			copy(z, s)
+			PartitionFunc(z, iseven)
+		}
+	})
+
+	b.Run("PartitionFunc(half)", func(b *testing.B) {
+		z := make([]int, len(s))
+		b.SetBytes(int64(len(s) * 8))
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			copy(z, s)
+			PartitionFunc(z, half)
+		}
+	})
+}
 
 func TestSelect(t *testing.T) {
 	r := rand.New(rand.NewSource(0))
