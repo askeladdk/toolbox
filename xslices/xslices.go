@@ -58,15 +58,15 @@ func GroupFunc[S ~[]E, E any](d []S, s S, eq func(E, E) bool) []S {
 	return d
 }
 
-// Permute reorders s in place according to the indices in x,
+// Reorder changes the order of elements in s according to the indices in x,
 // which must be a permutation of indices in the half-open interval [0, len(s)),
 // Every index must appear exactly once or the result will be incorrect.
-// Permute panics if len(s) != len(x).
+// Reorder panics if len(s) != len(x).
 //
 // The complexity is O(nlogn) on average and O(n^2) in the worse case.
-func Permute[S ~[]E, E any](s S, x []int) {
+func Reorder[S ~[]E, E any](s S, x []int) {
 	if len(s) != len(x) {
-		panic("xslices.Permute: unequal slice lengths")
+		panic("xslices.Reorder: unequal slice lengths")
 	}
 	for i, j := range x {
 		for n := len(x); n != 0 && j < i; n-- {

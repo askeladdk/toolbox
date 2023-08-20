@@ -38,10 +38,10 @@ func ExampleGroupFunc() {
 	// [[1 1] [2 2 2] [3]]
 }
 
-func ExamplePermute() {
+func ExampleReorder() {
 	a := []string{"e", "d", "c", "a", "b"}
-	p := []int{3, 4, 2, 1, 0}
-	xslices.Permute(a, p)
+	x := []int{3, 4, 2, 1, 0}
+	xslices.Reorder(a, x)
 	fmt.Println(a)
 	// Output:
 	// [a b c d e]

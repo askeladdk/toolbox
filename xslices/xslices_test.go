@@ -45,7 +45,7 @@ func TestGroupFunc(t *testing.T) {
 	require.True(t, GroupFunc(nil, []int{}, nil) == nil)
 }
 
-func TestPermute(t *testing.T) {
+func TestReorder(t *testing.T) {
 	a := []string{"a", "b", "c", "d", "e"}
 
 	for i, tt := range []struct {
@@ -59,7 +59,7 @@ func TestPermute(t *testing.T) {
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			b := slices.Clone(a)
-			Permute(b, tt.Input)
+			Reorder(b, tt.Input)
 			for i, x := range b {
 				require.Equal(t, a[tt.Input[i]], x, b, x)
 			}
@@ -70,13 +70,13 @@ func TestPermute(t *testing.T) {
 		var panicked bool
 		func() {
 			defer func() { panicked = recover() != nil }()
-			Permute(a, []int{0, 1, 2, 3})
+			Reorder(a, []int{0, 1, 2, 3})
 		}()
 		require.True(t, panicked)
 	})
 }
 
-func BenchmarkPermute(b *testing.B) {
+func BenchmarkReorder(b *testing.B) {
 	rnd := rand.New(rand.NewSource(0))
 	elems := make([]int, b.N)
 	perms := make([][]int, b.N)
@@ -88,6 +88,6 @@ func BenchmarkPermute(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Permute(elems, perms[i])
+		Reorder(elems, perms[i])
 	}
 }
