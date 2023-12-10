@@ -163,3 +163,21 @@ func TestPushPopPush(t *testing.T) {
 	q.Reset()
 	require.Equal(t, 0, q.Len())
 }
+
+func BenchmarkPush(b *testing.B) {
+	var q Queue[int]
+	for i := 0; i < b.N; i++ {
+		q.Push(i)
+	}
+}
+
+func BenchmarkPop(b *testing.B) {
+	q := Queue[int]{
+		elem: make([]int, b.N),
+		head: b.N,
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		q.Pop()
+	}
+}
