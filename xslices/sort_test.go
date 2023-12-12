@@ -10,6 +10,21 @@ import (
 	"github.com/askeladdk/toolbox/internal/require"
 )
 
+func TestArgSort(t *testing.T) {
+	funcs := []func(a, x []int){
+		ArgSort[[]int, int],
+		func(a, x []int) { ArgSortFunc(a, x, cmp.Less[int]) },
+		func(a, x []int) { ArgSortStableFunc(a, x, cmp.Less[int]) },
+	}
+	for _, fn := range funcs {
+		data := []int{3, 8, 0, 2, 9, 1, 5, 7, 6, 4}
+		x := make([]int, len(data))
+		fn(data, x)
+		Reorder(data, x)
+		require.True(t, slices.IsSorted(data), "not sorted")
+	}
+}
+
 func TestPartitionFunc(t *testing.T) {
 	rnd := rand.New(rand.NewSource(0))
 
@@ -161,6 +176,28 @@ func TestMedian3Func(t *testing.T) {
 	require.Equal(t, 2, median3Func(2, 2, 0, cmp.Compare))
 	require.Equal(t, 2, median3Func(2, 2, 1, cmp.Compare))
 	require.Equal(t, 2, median3Func(2, 2, 2, cmp.Compare))
+}
+
+func BenchmarkArgSort(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		r := rand.New(rand.NewSource(0))
+		xs := r.Perm(10000)
+		ys := make([]int, len(xs))
+		b.StartTimer()
+		ArgSort(xs, ys)
+	}
+}
+
+func BenchmarkArgSortFunc(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		r := rand.New(rand.NewSource(0))
+		xs := r.Perm(10000)
+		ys := make([]int, len(xs))
+		b.StartTimer()
+		ArgSortFunc(xs, ys, cmp.Less)
+	}
 }
 
 func BenchmarkSelect(b *testing.B) {

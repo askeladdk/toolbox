@@ -1,6 +1,61 @@
 package xslices
 
-import "cmp"
+import (
+	"cmp"
+	"sort"
+)
+
+// ArgSort sets the elements of x to the indices that would sort s.
+// Panics if len(s) != len(x).
+func ArgSort[S ~[]E, E cmp.Ordered](s S, x []int) {
+	if len(s) != len(x) {
+		panic("xslices.ArgSort: unequal slice lengths")
+	}
+	for i := range x {
+		x[i] = i
+	}
+	sort.Sort(argsorter[E]{s, x})
+}
+
+// ArgSortFunc is like [ArgSort] but uses less to sort the elements.
+func ArgSortFunc[S ~[]E, E any](s S, x []int, less func(a, b E) bool) {
+	argSortFunc(s, x, less, sort.Sort)
+}
+
+// ArgSortStableFunc is like [ArgSort] but uses less to sort the elements
+// and the sort is stable.
+func ArgSortStableFunc[S ~[]E, E any](s S, x []int, less func(a, b E) bool) {
+	argSortFunc(s, x, less, sort.Stable)
+}
+
+func argSortFunc[S ~[]E, E any](s S, x []int, less func(a, b E) bool, sort func(sort.Interface)) {
+	if len(s) != len(x) {
+		panic("xslices.ArgSortFunc: unequal slice lengths")
+	}
+	for i := range x {
+		x[i] = i
+	}
+	sort(argsorterfunc[E]{s, x, less})
+}
+
+type argsorter[E cmp.Ordered] struct {
+	s []E
+	x []int
+}
+
+func (a argsorter[E]) Len() int           { return len(a.s) }
+func (a argsorter[E]) Less(i, j int) bool { return a.s[a.x[i]] < a.s[a.x[j]] }
+func (a argsorter[E]) Swap(i, j int)      { a.x[i], a.x[j] = a.x[j], a.x[i] }
+
+type argsorterfunc[E any] struct {
+	s []E
+	x []int
+	l func(a, b E) bool
+}
+
+func (a argsorterfunc[E]) Len() int           { return len(a.s) }
+func (a argsorterfunc[E]) Less(i, j int) bool { return a.l(a.s[a.x[i]], a.s[a.x[j]]) }
+func (a argsorterfunc[E]) Swap(i, j int)      { a.x[i], a.x[j] = a.x[j], a.x[i] }
 
 // Partition divides s into two subslices and returns the partition index.
 // The lower partition contains all elements in s which are less than or equal to target.
