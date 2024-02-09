@@ -24,3 +24,13 @@ func True(tb testing.TB, test bool, args ...any) {
 		tb.Fatal(args...)
 	}
 }
+
+func NoError(tb testing.TB, err error, args ...any) {
+	tb.Helper()
+	if err != nil {
+		if len(args) == 0 {
+			tb.Fatal("unexpected error:", err)
+		}
+		tb.Fatal(args...)
+	}
+}
