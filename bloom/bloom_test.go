@@ -1,6 +1,7 @@
 package bloom
 
 import (
+	"errors"
 	"math"
 	"runtime"
 	"strconv"
@@ -130,6 +131,16 @@ func TestParallelism(t *testing.T) {
 			require.True(t, f.Equal(g))
 		})
 	}
+}
+
+func TestBinaryEncoding(t *testing.T) {
+	f := Filter{1, 2, 3, 4}
+	b, err := f.MarshalBinary()
+	require.NoError(t, err)
+	g := Filter{0, 0, 0, 0}
+	require.NoError(t, g.UnmarshalBinary(b))
+	require.Equal(t, f, g)
+	require.Equal(t, errors.New("bloom: invalid bloom state size"), g.UnmarshalBinary(nil))
 }
 
 func BenchmarkBloomFilter(b *testing.B) {

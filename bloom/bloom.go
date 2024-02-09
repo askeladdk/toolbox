@@ -22,6 +22,8 @@
 package bloom
 
 import (
+	"encoding/binary"
+	"errors"
 	"math"
 	"math/bits"
 	"sync/atomic"
@@ -180,6 +182,28 @@ func (f Filter) UnionWith(g Filter) {
 	for i := range f {
 		f.atomicSetBits(uint32(i), g[i])
 	}
+}
+
+// MarshalBinary implements [encoding.BinaryMarshaler].
+func (f Filter) MarshalBinary() ([]byte, error) {
+	b := make([]byte, len(f)*8)
+	for i := range f {
+		v := atomic.LoadUint64(&f[i])
+		binary.LittleEndian.PutUint64(b[8*i:], v)
+	}
+	return b, nil
+}
+
+// UnmarshalBinary implements [encoding.BinaryUnmarshaler].
+func (f Filter) UnmarshalBinary(b []byte) error {
+	if len(b) != 8*len(f) {
+		return errors.New("bloom: invalid bloom state size")
+	}
+	for i := range f {
+		v := binary.LittleEndian.Uint64(b[8*i:])
+		atomic.StoreUint64(&f[i], v)
+	}
+	return nil
 }
 
 func (f Filter) atomicSetBits(s uint32, z uint64) (old uint64) {
