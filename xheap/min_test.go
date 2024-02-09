@@ -33,7 +33,7 @@ func TestMinFix(t *testing.T) {
 	h.Push(3, 2)
 	top, _ := h.Peek()
 	require.Equal(t, 1, top)
-	h[0].Prio = 10
+	h[0].Priority = 10
 	h.Fix(0)
 	top, _ = h.Peek()
 	require.Equal(t, 3, top)
@@ -48,14 +48,14 @@ func TestMinInit(t *testing.T) {
 
 	h.Init()
 	require.Equal(t, 3, h.Len())
-	require.Equal(t, 1, h[0].Elem)
-	require.Equal(t, 2, h[1].Elem)
-	require.Equal(t, 3, h[2].Elem)
+	require.Equal(t, 1, h[0].Value)
+	require.Equal(t, 2, h[1].Value)
+	require.Equal(t, 3, h[2].Value)
 
 	h.Remove(1)
 	require.Equal(t, 2, h.Len())
-	require.Equal(t, 1, h[0].Elem)
-	require.Equal(t, 3, h[1].Elem)
+	require.Equal(t, 1, h[0].Value)
+	require.Equal(t, 3, h[1].Value)
 
 	h.Reset()
 	require.Equal(t, 0, h.Len())

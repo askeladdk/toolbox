@@ -2,7 +2,7 @@ package xheap
 
 import "cmp"
 
-// Min is a min-heap where an element is associated with a priority.
+// Min is a min-heap where elements are associated with priorities.
 type Min[E any, P cmp.Ordered] []Pair[E, P]
 
 // Empty reports whether h is empty.
@@ -26,25 +26,28 @@ func (h Min[E, P]) Len() int {
 }
 
 // Peek returns the minimum element without removing it.
-func (h Min[E, P]) Peek() (E, P) {
-	return h[0].Elem, h[0].Prio
+// Panics if the heap is empty.
+func (h Min[E, P]) Peek() (value E, priority P) {
+	return h[0].Value, h[0].Priority
 }
 
 // Pop removes and returns the minimum element.
-func (h *Min[E, P]) Pop() (E, P) {
+// Panics if the heap is empty.
+func (h *Min[E, P]) Pop() (value E, priority P) {
 	x := Pop(h.iface())
-	return x.Elem, x.Prio
+	return x.Value, x.Priority
 }
 
 // Push pushes a new element on the heap.
-func (h *Min[E, P]) Push(elem E, prio P) {
-	Push(h.iface(), Pair[E, P]{elem, prio})
+func (h *Min[E, P]) Push(value E, priority P) {
+	Push(h.iface(), Pair[E, P]{value, priority})
 }
 
 // Remove removes and returns the i-th element.
-func (h *Min[E, P]) Remove(i int) (E, P) {
+// Panics if the heap is empty.
+func (h *Min[E, P]) Remove(i int) (value E, priority P) {
 	p := Remove(h.iface(), i)
-	return p.Elem, p.Prio
+	return p.Value, p.Priority
 }
 
 // Reset empties the heap.
@@ -63,7 +66,7 @@ func (h minHeapImpl[E, P]) Len() int {
 }
 
 func (h minHeapImpl[E, P]) Less(i, j int) bool {
-	return h[i].Prio < h[j].Prio
+	return h[i].Priority < h[j].Priority
 }
 
 func (h *minHeapImpl[E, P]) Pop() (x Pair[E, P]) {

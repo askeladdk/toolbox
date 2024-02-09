@@ -4,11 +4,11 @@ import "cmp"
 
 // Pair associated a value with a priority used to order the heap.
 type Pair[E any, P cmp.Ordered] struct {
-	Elem E
-	Prio P
+	Value    E
+	Priority P
 }
 
-// Max is a max-heap where an element is associated with a priority.
+// Max is a max-heap where values are associated with a priorities.
 type Max[E any, P cmp.Ordered] []Pair[E, P]
 
 // Empty reports whether h is empty.
@@ -32,25 +32,28 @@ func (h Max[E, P]) Len() int {
 }
 
 // Peek returns the maximum element without removing it.
-func (h Max[E, P]) Peek() (E, P) {
-	return h[0].Elem, h[0].Prio
+// Panics if the heap is empty.
+func (h Max[E, P]) Peek() (value E, priority P) {
+	return h[0].Value, h[0].Priority
 }
 
 // Pop removes and returns the maximum element.
-func (h *Max[E, P]) Pop() (E, P) {
+// Panics if the heap is empty.
+func (h *Max[E, P]) Pop() (value E, priority P) {
 	x := Pop(h.iface())
-	return x.Elem, x.Prio
+	return x.Value, x.Priority
 }
 
 // Push pushes a new element on the heap.
-func (h *Max[E, P]) Push(elem E, prio P) {
-	Push(h.iface(), Pair[E, P]{elem, prio})
+func (h *Max[E, P]) Push(value E, priority P) {
+	Push(h.iface(), Pair[E, P]{value, priority})
 }
 
 // Remove removes and returns the i-th element.
-func (h *Max[E, P]) Remove(i int) (E, P) {
+// Panics if the heap is empty.
+func (h *Max[E, P]) Remove(i int) (value E, priority P) {
 	p := Remove(h.iface(), i)
-	return p.Elem, p.Prio
+	return p.Value, p.Priority
 }
 
 // Reset empties the heap.
@@ -69,7 +72,7 @@ func (h maxHeapImpl[E, P]) Len() int {
 }
 
 func (h maxHeapImpl[E, P]) Less(i, j int) bool {
-	return h[j].Prio < h[i].Prio
+	return h[j].Priority < h[i].Priority
 }
 
 func (h *maxHeapImpl[E, P]) Pop() (x Pair[E, P]) {
