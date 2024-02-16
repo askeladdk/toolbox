@@ -23,13 +23,13 @@ func CountFunc[S ~[]E, E any](s S, f func(E) bool) int {
 	return n
 }
 
-// Group collects consecutive equal elements into subslices of s
-// and appends them to d.
+// Group collects consecutive equal elements into subslices of s.
 // Every subslice contains at least one element,
 // and the sum of the lengths of the subslices is equal to len(s).
 // The underlying slice s is not modified but should be sorted beforehand
 // to group all equal elements into a single subslice.
-func Group[S ~[]E, E comparable](d []S, s S) []S {
+func Group[S ~[]E, E comparable](s S) []S {
+	var d []S
 	if len(s) != 0 {
 		i := 0
 		for j := 1; j < len(s); j++ {
@@ -44,7 +44,8 @@ func Group[S ~[]E, E comparable](d []S, s S) []S {
 }
 
 // GroupFunc is like [Group] but uses eq to determine equality.
-func GroupFunc[S ~[]E, E any](d []S, s S, eq func(E, E) bool) []S {
+func GroupFunc[S ~[]E, E any](s S, eq func(E, E) bool) []S {
+	var d []S
 	if len(s) != 0 {
 		i := 0
 		for j := 1; j < len(s); j++ {

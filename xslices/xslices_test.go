@@ -30,19 +30,19 @@ func TestCount(t *testing.T) {
 
 func TestGroup(t *testing.T) {
 	xs := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4}
-	ys := Group(nil, xs)
+	ys := Group(xs)
 	expected := [][]int{{1}, {2, 2}, {3, 3, 3}, {4, 4, 4, 4}}
 	require.Equal(t, expected, ys)
-	require.True(t, Group(nil, []int{}) == nil)
+	require.True(t, Group([]int{}) == nil)
 }
 
 func TestGroupFunc(t *testing.T) {
 	eq := func(a, b int) bool { return iseven(a) == iseven(b) }
 	xs := []int{1, 3, 5, 2, 4, 6, 7, 9, 8}
-	ys := GroupFunc(nil, xs, eq)
+	ys := GroupFunc(xs, eq)
 	expected := [][]int{{1, 3, 5}, {2, 4, 6}, {7, 9}, {8}}
 	require.Equal(t, expected, ys)
-	require.True(t, GroupFunc(nil, []int{}, nil) == nil)
+	require.True(t, GroupFunc([]int{}, nil) == nil)
 }
 
 func TestReorder(t *testing.T) {

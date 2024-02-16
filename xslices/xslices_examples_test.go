@@ -23,7 +23,7 @@ func ExampleCountFunc() {
 
 func ExampleGroup() {
 	xs := []int{1, 1, 2, 2, 2, 3}
-	ys := xslices.Group(nil, xs)
+	ys := xslices.Group(xs)
 	fmt.Println(ys)
 	// Output:
 	// [[1 1] [2 2 2] [3]]
@@ -32,7 +32,7 @@ func ExampleGroup() {
 func ExampleGroupFunc() {
 	eq := func(a, b int) bool { return a == b }
 	xs := []int{1, 1, 2, 2, 2, 3}
-	ys := xslices.GroupFunc(nil, xs, eq)
+	ys := xslices.GroupFunc(xs, eq)
 	fmt.Println(ys)
 	// Output:
 	// [[1 1] [2 2 2] [3]]
