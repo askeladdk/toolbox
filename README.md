@@ -9,6 +9,7 @@ Package toolbox provides common and useful algorithms and data structures.
 | bloom       | Efficient and lock-free bloom filter.
 | densebits   | Dense bit set.
 | distinct    | Compact distinct set (union find).
+| formdata    | HTML form data to struct unmarshaler.
 | murmurhash3 | MurmurHash3 non-cryptographic hash function.
 | queue       | Generic queue.
 | sparse      | Efficient sparse set and map.
